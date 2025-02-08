@@ -91,9 +91,11 @@
 
     <script>
 
-        document.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-        displayMessage("Enter key pressed!");
+      document.getElementById("input-container")
+    .addEventListener("keyup", function(event) {
+    event.preventDefault();
+    if (event.keyCode === 13) {
+        document.getElementById("button").click();
     }
 });
 
