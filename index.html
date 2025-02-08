@@ -202,9 +202,16 @@
 
                 // Update the "Thinking..." message
                 thinkingMessageDiv.textContent = assistantResponse;
+
+                // Call text-to-speech
+                textToSpeech(assistantResponse);
             } catch (error) {
                 console.error("Error with Hugging Face API:", error);
-                thinkingMessageDiv.textContent = "Sorry, there was an error.";
+                const errorMessage = "Sorry, there was an error.";
+                thinkingMessageDiv.textContent = errorMessage;
+
+                // Call text-to-speech for error
+                textToSpeech(errorMessage);
             }
         }
 
