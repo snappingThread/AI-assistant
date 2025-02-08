@@ -137,12 +137,9 @@
         // Initialize userName
         let userName = prompt("What is your name?") || "User";
 
-        // Greet the user with a delay to ensure text-to-speech works
+        // Greet the user but defer text-to-speech until interaction
         const welcomeMessage = `Hello, ${userName}! How can I assist you today?`;
-        setTimeout(() => {
-            displayMessage('assistant', welcomeMessage);
-            textToSpeech(welcomeMessage);
-        }, 500);
+        displayMessage('assistant', welcomeMessage);
 
         // Function to display messages
         function displayMessage(sender, text) {
@@ -159,13 +156,14 @@
             chatLog.scrollTop = chatLog.scrollHeight;
 
             // Text-to-speech for assistant's responses
-            if (sender === 'assistant') {
+            if (sender === 'assistant' && hasUserInteracted) {
                 textToSpeech(text);
             }
         }
 
         // Handle user input
         function handleSend() {
+            hasUserInteracted = true; // User has interacted
             const userInput = document.getElementById('userInput');
             const message = userInput.value.trim();
 
@@ -227,6 +225,17 @@
                 handleSend();
             }
         });
+
+        // Track if the user has interacted
+        let hasUserInteracted = false;
+
+        // First interaction enables text-to-speech
+        document.addEventListener('click', () => {
+            if (!hasUserInteracted) {
+                hasUserInteracted = true;
+                textToSpeech(welcomeMessage);
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
