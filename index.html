@@ -138,8 +138,8 @@
         let userName = prompt("What is your name?") || "User";
 
         // Greet the user with a delay to ensure text-to-speech works
+        const welcomeMessage = `Hello, ${userName}! How can I assist you today?`;
         setTimeout(() => {
-            const welcomeMessage = `Hello, ${userName}! How can I assist you today?`;
             displayMessage('assistant', welcomeMessage);
             textToSpeech(welcomeMessage);
         }, 500);
@@ -214,6 +214,9 @@
         // Text-to-speech function
         function textToSpeech(text) {
             const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1; // Adjust rate if necessary
+            utterance.pitch = 1; // Adjust pitch if necessary
+            utterance.volume = 1; // Adjust volume if necessary
             speechSynthesis.speak(utterance);
         }
 
