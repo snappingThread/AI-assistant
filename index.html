@@ -129,13 +129,6 @@
 const inputField = document.getElementById("input-container");
 const sendButton = document.getElementById("button");
 
-// Function to handle the send action
-function handleSend() {
-    const message = inputField.value.trim();
-    if (message) {
-        displayMessage('user', message);
-        getAssistantResponse(message);
-        userInput.value = ''; // Replace with your send logic
         inputField.value = ""; // Clear the input field
     }
 }
