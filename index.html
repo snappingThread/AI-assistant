@@ -86,7 +86,6 @@
         <div class="input-container">
             <input type="text" id="userInput" placeholder="Type your message here...">
             <button onclick="handleSend()">➤</button>
-      
         </div>
     </div>
 
@@ -123,10 +122,6 @@
                 const response = `You said: "${query}"`; // Dummy response
                 document.querySelector('.assistant-message .text:last-child').textContent = response;
             }, 1000);
-
-    }
-});
-
         }
     </script>
 </body>
