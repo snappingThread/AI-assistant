@@ -137,9 +137,12 @@
         // Initialize userName
         let userName = prompt("What is your name?") || "User";
 
-        // Greet the user
-        displayMessage('assistant', `Hello, ${userName}! How can I assist you today?`);
-        textToSpeech(`Hello, ${userName}! How can I assist you today?`);
+        // Greet the user with a delay to ensure text-to-speech works
+        setTimeout(() => {
+            const welcomeMessage = `Hello, ${userName}! How can I assist you today?`;
+            displayMessage('assistant', welcomeMessage);
+            textToSpeech(welcomeMessage);
+        }, 500);
 
         // Function to display messages
         function displayMessage(sender, text) {
@@ -202,16 +205,9 @@
 
                 // Update the "Thinking..." message
                 thinkingMessageDiv.textContent = assistantResponse;
-
-                // Call text-to-speech
-                textToSpeech(assistantResponse);
             } catch (error) {
                 console.error("Error with Hugging Face API:", error);
-                const errorMessage = "Sorry, there was an error.";
-                thinkingMessageDiv.textContent = errorMessage;
-
-                // Call text-to-speech for error
-                textToSpeech(errorMessage);
+                thinkingMessageDiv.textContent = "Sorry, there was an error.";
             }
         }
 
