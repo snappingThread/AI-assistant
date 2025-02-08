@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Interface</title>
     <style>
+        /* Add your existing styles here */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -124,14 +125,6 @@
     </style>
 </head>
 <body>
-    <div id="nameModal">
-        <div id="nameModalContent">
-            <h2>Welcome! What's your name?</h2>
-            <input type="text" id="nameInput" placeholder="Enter your name">
-            <button onclick="submitName()">Submit</button>
-        </div>
-    </div>
-
     <div class="chat-container">
         <div class="chat-log" id="chatLog"></div>
         <div class="input-container">
@@ -141,19 +134,14 @@
     </div>
 
     <script>
-        let userName = "";
+        // Initialize userName
+        let userName = prompt("What is your name?") || "User";
 
-        function submitName() {
-            const nameInput = document.getElementById('nameInput');
-            if (nameInput.value.trim()) {
-                userName = nameInput.value.trim();
-                document.getElementById('nameModal').style.display = 'none';
-                const greetingMessage = `Hello, ${userName}! How can I assist you today?`;
-                displayMessage('assistant', greetingMessage);
-                speakText(greetingMessage); // Add text-to-speech for the greeting
-            }
-        }
+        // Greet the user
+        displayMessage('assistant', `Hello, ${userName}! How can I assist you today?`);
+        textToSpeech(`Hello, ${userName}! How can I assist you today?`);
 
+        // Function to display messages
         function displayMessage(sender, text) {
             const chatLog = document.getElementById('chatLog');
             const messageDiv = document.createElement('div');
@@ -166,8 +154,14 @@
             messageDiv.appendChild(textSpan);
             chatLog.appendChild(messageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
+
+            // Text-to-speech for assistant's responses
+            if (sender === 'assistant') {
+                textToSpeech(text);
+            }
         }
 
+        // Handle user input
         function handleSend() {
             const userInput = document.getElementById('userInput');
             const message = userInput.value.trim();
@@ -179,29 +173,44 @@
             }
         }
 
+        // Hugging Face API interaction
         async function getAssistantResponse(query) {
-            const chatLog = document.getElementById('chatLog');
+            const apiKey = "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"; // Replace with your API key
+            const model = "gpt2"; // Replace with your chosen model
+            const url = `https://api-inference.huggingface.co/models/${model}`;
+
+            // Display "Thinking..." message
             const thinkingMessageDiv = document.createElement('div');
             thinkingMessageDiv.classList.add('message', 'assistant-message');
-
-            const textSpan = document.createElement('span');
-            textSpan.classList.add('text');
-            textSpan.textContent = "Thinking...";
-            thinkingMessageDiv.appendChild(textSpan);
+            thinkingMessageDiv.textContent = "Thinking...";
+            const chatLog = document.getElementById('chatLog');
             chatLog.appendChild(thinkingMessageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
 
-            setTimeout(() => {
-                const response = `${userName}, you said: "${query}"`; // Use userName in the response
-                textSpan.textContent = response;
-                speakText(response); // Add text-to-speech for the response
-            }, 1000);
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${apiKey}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ inputs: query }),
+                });
+
+                const data = await response.json();
+                let assistantResponse = data.generated_text || "Sorry, I couldn't process that.";
+
+                // Update the "Thinking..." message
+                thinkingMessageDiv.textContent = assistantResponse;
+            } catch (error) {
+                console.error("Error with Hugging Face API:", error);
+                thinkingMessageDiv.textContent = "Sorry, there was an error.";
+            }
         }
 
-        function speakText(text) {
+        // Text-to-speech function
+        function textToSpeech(text) {
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.1; // Slightly faster speech
-            utterance.pitch = 1; // Normal pitch
             speechSynthesis.speak(utterance);
         }
 
