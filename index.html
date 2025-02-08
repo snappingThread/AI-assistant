@@ -78,9 +78,61 @@
         .input-container button:hover {
             background-color: #d1d1d1;
         }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #000000;
+        }
+
+        .modal-content input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .modal-content button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #303838;
+            color: #ffffff;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #505858;
+        }
     </style>
 </head>
 <body>
+    <div id="nameModal" class="modal">
+        <div class="modal-content">
+            <p>Please enter your name:</p>
+            <input type="text" id="nameInput" placeholder="Your name">
+            <button onclick="submitName()">Submit</button>
+        </div>
+    </div>
+
     <div class="chat-container">
         <div class="chat-log" id="chatLog"></div>
         <div class="input-container">
@@ -90,6 +142,17 @@
     </div>
 
     <script>
+        let userName = "";
+
+        function submitName() {
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput.value.trim()) {
+                userName = nameInput.value.trim();
+                document.getElementById('nameModal').style.display = 'none';
+                displayMessage('assistant', `Hello, ${userName}! How can I assist you today?`);
+            }
+        }
+
         function displayMessage(sender, text) {
             const chatLog = document.getElementById('chatLog');
             const messageDiv = document.createElement('div');
@@ -116,7 +179,6 @@
         }
 
         async function getAssistantResponse(query) {
-            // Display "Thinking..." and get a reference to the temporary message
             const chatLog = document.getElementById('chatLog');
             const thinkingMessageDiv = document.createElement('div');
             thinkingMessageDiv.classList.add('message', 'assistant-message');
@@ -128,11 +190,15 @@
             chatLog.appendChild(thinkingMessageDiv);
             chatLog.scrollTop = chatLog.scrollHeight;
 
-            // Simulate a delay for the AI response
             setTimeout(() => {
-                const response = `You said: "${query}"`; // Dummy response
-                textSpan.textContent = response; // Update the specific span
-                readTextAloud(response); // Read the assistant's response aloud
+                const response = `${userName}, you said: "${query}"`; // Use userName in the response
+                textSpan.textContent = response;
+
+                // Add text-to-speech
+                const utterance = new SpeechSynthesisUtterance(response);
+                utterance.rate = 1.1; // Slightly faster speech
+                utterance.pitch = 1; // Normal pitch
+                speechSynthesis.speak(utterance);
             }, 1000);
         }
 
@@ -143,15 +209,6 @@
                 handleSend();
             }
         });
-
-        // Text-to-Speech Function
-        function readTextAloud(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US'; // Set language
-            utterance.pitch = 1; // Set pitch
-            utterance.rate = 1; // Set speed
-            speechSynthesis.speak(utterance);
-        }
     </script>
 </body>
 </html>
