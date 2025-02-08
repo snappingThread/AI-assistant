@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #303838;
+            color: #ffffff;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background-color: #303838;
+            display: flex;
+            flex-direction: column;
+            border-radius: 10px;
+            box-shadow: none;
+        }
+
+        .chat-log {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #303838;
+            color: #ffffff;
+            box-shadow: none;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #303838;
+            box-shadow: none;
+        }
+
+        .input-container input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #8ca3a3;
+            color: #000000;
+            font-size: 16px;
+        }
+
+        .input-container input[type="text"]::placeholder {
+            color: #000000;
+        }
+
+        .input-container button {
+            margin-left: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 50%;
+            background-color: #ffffff;
+            color: #303838;
+            font-size: 18px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .input-container button:hover {
+            background-color: #d1d1d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-log" id="chatLog"></div>
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Type your message here...">
+            <button onclick="handleSend()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        function displayMessage(sender, text) {
+            const chatLog = document.getElementById('chatLog');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'assistant-message');
+
+            const textSpan = document.createElement('span');
+            textSpan.classList.add('text');
+            textSpan.textContent = text;
+
+            messageDiv.appendChild(textSpan);
+            chatLog.appendChild(messageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function handleSend() {
+            const userInput = document.getElementById('userInput');
+            const message = userInput.value.trim();
+
+            if (message) {
+                displayMessage('user', message);
+                getAssistantResponse(message);
+                userInput.value = '';
+            }
+        }
+
+        async function getAssistantResponse(query) {
+            displayMessage('assistant', "Thinking..."); // Temporary message
+            // Replace this with actual AI response logic
+            setTimeout(() => {
+                const response = `You said: "${query}"`; // Dummy response
+                document.querySelector('.assistant-message .text:last-child').textContent = response;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
