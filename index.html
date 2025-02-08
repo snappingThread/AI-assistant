@@ -90,6 +90,14 @@
     </div>
 
     <script>
+
+        document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        displayMessage("Enter key pressed!");
+    }
+});
+
+        
         function displayMessage(sender, text) {
             const chatLog = document.getElementById('chatLog');
             const messageDiv = document.createElement('div');
