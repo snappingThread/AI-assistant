@@ -116,13 +116,25 @@
         }
 
         async function getAssistantResponse(query) {
-            displayMessage('assistant', "Thinking..."); // Temporary message
-            // Replace this with actual AI response logic
-            setTimeout(() => {
-                const response = `You said: "${query}"`; // Dummy response
-                document.querySelector('.assistant-message .text:last-child').textContent = response;
-            }, 1000);
-        }
+    // Display "Thinking..." and get a reference to the temporary message
+    const chatLog = document.getElementById('chatLog');
+    const thinkingMessageDiv = document.createElement('div');
+    thinkingMessageDiv.classList.add('message', 'assistant-message');
+
+    const textSpan = document.createElement('span');
+    textSpan.classList.add('text');
+    textSpan.textContent = "Thinking...";
+    thinkingMessageDiv.appendChild(textSpan);
+    chatLog.appendChild(thinkingMessageDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    // Simulate a delay for the AI response
+    setTimeout(() => {
+        const response = `You said: "${query}"`; // Dummy response
+        textSpan.textContent = response; // Update the specific span
+    }, 1000);
+}
+
 
         // Add Enter key detection
         const userInput = document.getElementById('userInput');
