@@ -122,6 +122,31 @@
                 const response = `You said: "${query}"`; // Dummy response
                 document.querySelector('.assistant-message .text:last-child').textContent = response;
             }, 1000);
+
+
+            // Select the input and send button elements
+const inputField = document.getElementById("input-container");
+const sendButton = document.getElementById("input-container button");
+
+// Function to handle the send action
+function handleSend() {
+    const message = inputField.value.trim();
+    if (message) {
+        console.log("Sending message:", message); // Replace with your send logic
+        inputField.value = ""; // Clear the input field
+    }
+}
+
+// Attach event listener to the Send button
+sendButton.addEventListener("click", handleSend);
+
+// Attach event listener to the Enter key
+inputField.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        handleSend();
+    }
+});
+
         }
     </script>
 </body>
