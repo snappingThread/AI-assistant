@@ -132,7 +132,9 @@ const sendButton = document.getElementById("button");
 function handleSend() {
     const message = inputField.value.trim();
     if (message) {
-        console.log("Sending message:", message); // Replace with your send logic
+        displayMessage('user', message);
+        getAssistantResponse(message);
+        userInput.value = ''; // Replace with your send logic
         inputField.value = ""; // Clear the input field
     }
 }
