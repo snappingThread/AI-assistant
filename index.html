@@ -134,6 +134,9 @@
     </div>
 
     <script>
+        // Track if the user has interacted
+        let hasUserInteracted = false;
+
         // Initialize userName
         let userName = prompt("What is your name?") || "User";
 
@@ -225,9 +228,6 @@
                 handleSend();
             }
         });
-
-        // Track if the user has interacted
-        let hasUserInteracted = false;
 
         // First interaction enables text-to-speech
         document.addEventListener('click', () => {
