@@ -177,7 +177,7 @@
             }
         }
 
-        // Hugging Face API interaction with retry mechanism
+        // Hugging Face API interaction with retry mechanism and countdown
         async function getAssistantResponse(query) {
             const apiKey = "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"; // Replace with your API key
             const model = "EleutherAI/gpt-neo-1.3B"; // Replace with your chosen model
@@ -209,9 +209,11 @@
                     console.log("API Response:", data); // Log the full response for debugging
 
                     if (response.status === 503) {
-                        const waitTime = data.estimated_time || 10; // Default wait time if not provided
-                        thinkingMessageDiv.textContent = `Model is currently loading. Retrying in ${Math.round(waitTime)} seconds...`;
-                        await new Promise(resolve => setTimeout(resolve, waitTime * 1000)); // Wait before retrying
+                        const waitTime = Math.round(data.estimated_time || 10); // Default wait time if not provided
+                        for (let i = waitTime; i > 0; i--) {
+                            thinkingMessageDiv.textContent = `Model is currently loading. Retrying in ${i} seconds...`;
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
                     } else if (response.ok) {
                         retry = false; // Exit loop if successful
                         let assistantResponse = data.generated_text; // For models with generated_text
