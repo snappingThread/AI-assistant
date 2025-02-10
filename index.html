@@ -184,33 +184,45 @@
             const url = `https://api-inference.huggingface.co/models/${model}`;
 
             // Display "Thinking..." message
-            const thinkingMessageDiv = document.createElement('div');
-            thinkingMessageDiv.classList.add('message', 'assistant-message');
-            thinkingMessageDiv.textContent = "Thinking...";
-            const chatLog = document.getElementById('chatLog');
-            chatLog.appendChild(thinkingMessageDiv);
-            chatLog.scrollTop = chatLog.scrollHeight;
+    const thinkingMessageDiv = document.createElement('div');
+    thinkingMessageDiv.classList.add('message', 'assistant-message');
+    thinkingMessageDiv.textContent = "Thinking...";
+    const chatLog = document.getElementById('chatLog');
+    chatLog.appendChild(thinkingMessageDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
 
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${apiKey}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ inputs: query }),
-                });
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ inputs: query }),
+        });
 
-                const data = await response.json();
-                let assistantResponse = data.generated_text || "Sorry, I couldn't process that.";
+        const data = await response.json();
 
-                // Update the "Thinking..." message
-                thinkingMessageDiv.textContent = assistantResponse;
-            } catch (error) {
-                console.error("Error with Hugging Face API:", error);
-                thinkingMessageDiv.textContent = "Sorry, there was an error.";
-            }
+        console.log("API Response:", data); // Log the full response for debugging
+
+        // Handle models with different output formats
+        let assistantResponse = data.generated_text; // For models with generated_text
+        if (!assistantResponse && Array.isArray(data) && data.length > 0) {
+            assistantResponse = data[0].generated_text; // For models returning an array
         }
+        if (!assistantResponse && data.choices && data.choices.length > 0) {
+            assistantResponse = data.choices[0].text; // For models with choices array
+        }
+
+        assistantResponse = assistantResponse || "Sorry, I couldn't process that.";
+
+        // Update the "Thinking..." message
+        thinkingMessageDiv.textContent = assistantResponse;
+    } catch (error) {
+        console.error("Error with Hugging Face API:", error);
+        thinkingMessageDiv.textContent = "Sorry, there was an error.";
+    }
+}
 
         // Text-to-speech function
         function textToSpeech(text) {
