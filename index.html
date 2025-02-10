@@ -177,52 +177,61 @@
             }
         }
 
-        // Hugging Face API interaction
+        // Hugging Face API interaction with retry mechanism
         async function getAssistantResponse(query) {
             const apiKey = "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"; // Replace with your API key
             const model = "EleutherAI/gpt-neo-1.3B"; // Replace with your chosen model
             const url = `https://api-inference.huggingface.co/models/${model}`;
 
             // Display "Thinking..." message
-    const thinkingMessageDiv = document.createElement('div');
-    thinkingMessageDiv.classList.add('message', 'assistant-message');
-    thinkingMessageDiv.textContent = "Thinking...";
-    const chatLog = document.getElementById('chatLog');
-    chatLog.appendChild(thinkingMessageDiv);
-    chatLog.scrollTop = chatLog.scrollHeight;
+            const thinkingMessageDiv = document.createElement('div');
+            thinkingMessageDiv.classList.add('message', 'assistant-message');
+            thinkingMessageDiv.textContent = "Thinking...";
+            const chatLog = document.getElementById('chatLog');
+            chatLog.appendChild(thinkingMessageDiv);
+            chatLog.scrollTop = chatLog.scrollHeight;
 
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ inputs: query }),
-        });
+            try {
+                let retry = true;
 
-        const data = await response.json();
+                while (retry) {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${apiKey}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ inputs: query }),
+                    });
 
-        console.log("API Response:", data); // Log the full response for debugging
+                    const data = await response.json();
 
-        // Handle models with different output formats
-        let assistantResponse = data.generated_text; // For models with generated_text
-        if (!assistantResponse && Array.isArray(data) && data.length > 0) {
-            assistantResponse = data[0].generated_text; // For models returning an array
+                    console.log("API Response:", data); // Log the full response for debugging
+
+                    if (response.status === 503) {
+                        const waitTime = data.estimated_time || 10; // Default wait time if not provided
+                        thinkingMessageDiv.textContent = `Model is currently loading. Retrying in ${Math.round(waitTime)} seconds...`;
+                        await new Promise(resolve => setTimeout(resolve, waitTime * 1000)); // Wait before retrying
+                    } else if (response.ok) {
+                        retry = false; // Exit loop if successful
+                        let assistantResponse = data.generated_text; // For models with generated_text
+                        if (!assistantResponse && Array.isArray(data) && data.length > 0) {
+                            assistantResponse = data[0].generated_text; // For models returning an array
+                        }
+                        if (!assistantResponse && data.choices && data.choices.length > 0) {
+                            assistantResponse = data.choices[0].text; // For models with choices array
+                        }
+                        assistantResponse = assistantResponse || "Sorry, I couldn't process that.";
+                        thinkingMessageDiv.textContent = assistantResponse;
+                    } else {
+                        throw new Error(data.error || "Unknown error occurred.");
+                    }
+                }
+            } catch (error) {
+                console.error("Error with Hugging Face API:", error);
+                thinkingMessageDiv.textContent = "Sorry, there was an error.";
+            }
         }
-        if (!assistantResponse && data.choices && data.choices.length > 0) {
-            assistantResponse = data.choices[0].text; // For models with choices array
-        }
-
-        assistantResponse = assistantResponse || "Sorry, I couldn't process that.";
-
-        // Update the "Thinking..." message
-        thinkingMessageDiv.textContent = assistantResponse;
-    } catch (error) {
-        console.error("Error with Hugging Face API:", error);
-        thinkingMessageDiv.textContent = "Sorry, there was an error.";
-    }
-}
 
         // Text-to-speech function
         function textToSpeech(text) {
