@@ -179,7 +179,7 @@
 
         // Function to handle user queries
         async function handleQuery(query) {
-            const weatherRegex = /^what is the weather like in (.+)$/i;
+            const weatherRegex = /^what is the weather in (.+)$/i;
             const timeRegex = /^what is the time in (.+)$/i;
 
             let match;
@@ -210,7 +210,7 @@
                         const weatherInfo = weatherData.current_weather;
                         displayMessage(
                             'assistant',
-                            `The current weather in ${location} is ${weatherInfo.temperature}°C with ${weatherInfo.weathercode}.`
+                            `The current weather in ${location} is ${weatherInfo.temperature}°C with weather code ${weatherInfo.weathercode}.`
                         );
                     } else {
                         displayMessage('assistant', `I couldn't find the weather for ${location}.`);
