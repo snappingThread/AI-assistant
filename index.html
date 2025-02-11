@@ -177,6 +177,51 @@
             }
         }
 
+
+        // Function to handle user queries
+async function handleQuery(query) {
+    const weatherRegex = /^what is the weather like in (.+)$/i;
+    const timeRegex = /^what is the time in (.+)$/i;
+
+    let match;
+
+    if ((match = query.match(weatherRegex))) {
+        const location = match[1];
+        performSearch(`current weather in ${location}`);
+    } else if ((match = query.match(timeRegex))) {
+        const location = match[1];
+        performSearch(`current time in ${location}`);
+    } else {
+        performSearch(query); // General search for any other type of question
+    }
+}
+
+// Function to perform a search using Google
+function performSearch(searchQuery) {
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+    displayMessage(
+        "assistant",
+        `Searching for: "${searchQuery}". <a href="${searchUrl}" target="_blank">Click here to view the results.</a>`
+    );
+
+    // Optionally, open the search results in a new tab automatically
+    window.open(searchUrl, "_blank");
+}
+
+// Modify the `handleSend` function to include `handleQuery`
+function handleSend() {
+    hasUserInteracted = true; // User has interacted
+    const userInput = document.getElementById("userInput");
+    const message = userInput.value.trim();
+
+    if (message) {
+        displayMessage("user", message);
+        handleQuery(message); // Call the new query handler
+        userInput.value = "";
+    }
+}
+
+
         // Hugging Face API interaction with retry mechanism and countdown
         async function getAssistantResponse(query) {
             const apiKey = "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"; // Replace with your API key
