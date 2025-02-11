@@ -280,12 +280,24 @@
             }
         }
 
-        // Function to perform a search using Google
-        function performSearch(searchQuery) {
-            displayMessage(
-                'assistant',
-                `I couldn't find an exact answer. You might want to check Google for more details on "${searchQuery}".`
-            );
+        // Function to perform a search using Wikipedia
+        async function performSearch(searchQuery) {
+            try {
+                // Fetch summary from Wikipedia
+                const response = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchQuery)}`);
+                const data = await response.json();
+
+                if (response.ok && data.extract) {
+                    // Display the extracted summary
+                    displayMessage('assistant', data.extract);
+                } else {
+                    // Handle cases where no summary is found
+                    displayMessage('assistant', `I couldn't find any details about "${searchQuery}".`);
+                }
+            } catch (error) {
+                // Handle fetch errors
+                displayMessage('assistant', `Sorry, I couldn't fetch details for "${searchQuery}".`);
+            }
         }
 
         // Text-to-speech function
@@ -306,12 +318,11 @@
         });
 
         // First interaction enables text-to-speech
-        document.addEventListener('click', () => {
-            if (!hasUserInteracted) {
-                hasUserInteracted = true;
-                textToSpeech(welcomeMessage);
-            }
-        }, { once: true });
+        document.addEvent
+              Listener('click', () => {
+            hasUserInteracted = true; // User interaction initialized
+        });
     </script>
 </body>
 </html>
+
