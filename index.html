@@ -198,17 +198,25 @@
         // Function to fetch weather data
         async function getWeather(location) {
             try {
-                const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0&current_weather=true&location=${encodeURIComponent(location)}`);
-                const data = await response.json();
+                const geocodeResponse = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`);
+                const geocodeData = await geocodeResponse.json();
 
-                if (response.ok && data.current_weather) {
-                    const weatherInfo = data.current_weather;
-                    displayMessage(
-                        'assistant',
-                        `The current weather in ${location} is ${weatherInfo.temperature}°C with ${weatherInfo.weather_descriptions[0].toLowerCase()}.`
-                    );
+                if (geocodeData.length > 0) {
+                    const { lat, lon } = geocodeData[0];
+                    const weatherResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                    const weatherData = await weatherResponse.json();
+
+                    if (weatherResponse.ok && weatherData.current_weather) {
+                        const weatherInfo = weatherData.current_weather;
+                        displayMessage(
+                            'assistant',
+                            `The current weather in ${location} is ${weatherInfo.temperature}°C with ${weatherInfo.weathercode}.`
+                        );
+                    } else {
+                        displayMessage('assistant', `I couldn't find the weather for ${location}.`);
+                    }
                 } else {
-                    displayMessage('assistant', `I couldn't find the weather for ${location}.`);
+                    displayMessage('assistant', `I couldn't find the location ${location}.`);
                 }
             } catch (error) {
                 displayMessage('assistant', `Sorry, I couldn't fetch the weather for ${location}.`);
@@ -218,14 +226,31 @@
         // Function to fetch time data
         async function getTime(location) {
             try {
-                const response = await fetch(`http://worldtimeapi.org/api/timezone/${encodeURIComponent(location)}`);
-                const data = await response.json();
+                const geocodeResponse = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`);
+                const geocodeData = await geocodeResponse.json();
 
-                if (response.ok && data.datetime) {
-                    const time = new Date(data.datetime).toLocaleTimeString();
-                    displayMessage('assistant', `The current time in ${location} is ${time}.`);
+                if (geocodeData.length > 0) {
+                    const timezoneResponse = await fetch(`http://worldtimeapi.org/api/timezone`);
+                    const timezoneData = await timezoneResponse.json();
+
+                    const locationData = geocodeData[0].display_name;
+                    const matchingTimezone = timezoneData.find(zone => locationData.includes(zone));
+
+                    if (matchingTimezone) {
+                        const timeResponse = await fetch(`http://worldtimeapi.org/api/timezone/${matchingTimezone}`);
+                        const timeData = await timeResponse.json();
+
+                        if (timeResponse.ok && timeData.datetime) {
+                            const time = new Date(timeData.datetime).toLocaleTimeString();
+                            displayMessage('assistant', `The current time in ${location} is ${time}.`);
+                        } else {
+                            displayMessage('assistant', `I couldn't find the time for ${location}.`);
+                        }
+                    } else {
+                        displayMessage('assistant', `I couldn't find a matching timezone for ${location}.`);
+                    }
                 } else {
-                    displayMessage('assistant', `I couldn't find the time for ${location}.`);
+                    displayMessage('assistant', `I couldn't find the location ${location}.`);
                 }
             } catch (error) {
                 displayMessage('assistant', `Sorry, I couldn't fetch the time for ${location}.`);
