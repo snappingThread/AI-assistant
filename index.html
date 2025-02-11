@@ -230,24 +230,14 @@
                 const geocodeData = await geocodeResponse.json();
 
                 if (geocodeData.length > 0) {
-                    const timezoneResponse = await fetch(`http://worldtimeapi.org/api/timezone`);
-                    const timezoneData = await timezoneResponse.json();
+                    const { lat, lon } = geocodeData[0];
+                    const timeResponse = await fetch(`https://timeapi.io/api/Time/current/coordinate?latitude=${lat}&longitude=${lon}`);
+                    const timeData = await timeResponse.json();
 
-                    const locationData = geocodeData[0].display_name;
-                    const matchingTimezone = timezoneData.find(zone => locationData.includes(zone));
-
-                    if (matchingTimezone) {
-                        const timeResponse = await fetch(`http://worldtimeapi.org/api/timezone/${matchingTimezone}`);
-                        const timeData = await timeResponse.json();
-
-                        if (timeResponse.ok && timeData.datetime) {
-                            const time = new Date(timeData.datetime).toLocaleTimeString();
-                            displayMessage('assistant', `The current time in ${location} is ${time}.`);
-                        } else {
-                            displayMessage('assistant', `I couldn't find the time for ${location}.`);
-                        }
+                    if (timeResponse.ok && timeData.time) {
+                        displayMessage('assistant', `The current time in ${location} is ${timeData.time}.`);
                     } else {
-                        displayMessage('assistant', `I couldn't find a matching timezone for ${location}.`);
+                        displayMessage('assistant', `I couldn't find the time for ${location}.`);
                     }
                 } else {
                     displayMessage('assistant', `I couldn't find the location ${location}.`);
